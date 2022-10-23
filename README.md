@@ -13,6 +13,30 @@ Basic Express application starter with some common utilities.
 
 ### Example
 
+api.controller.ts
+
+```
+import {NeuraBaseController} from "neura-express-app"
+import express, {Request, Response} from "express"
+
+export class ApiController extends NeuraBaseController {
+  getRoutes() {
+    const router = express.Router()
+    const someValue = this.container.get<string>("some_value");
+
+    router.get("/", (_req: Request, res: Response) => {
+      this.logger.info(`Some value: ${someValue}`)
+      res.send("Hello world")
+    })
+
+    return router
+  }
+}
+
+```
+
+index.ts
+
 ```
 import dotenv from "dotenv"
 
@@ -30,6 +54,7 @@ import {
   NeuraErrorHandler,
   NeuraAppError,
 } from "neura-express-app"
+import {ApiController} from "./api.controller"
 
 // import modules
 
@@ -43,6 +68,7 @@ const errorHandler = new NeuraErrorHandler(logger)
 // Register logger and error handler in our container
 container.set("logger", logger)
 container.set("error_handler", errorHandler)
+container.set("some_value", 123)
 
 // Bootstrapping application
 const bootstrap = async (container: INeuraContainer): Promise<void> => {
@@ -57,7 +83,7 @@ const bootstrap = async (container: INeuraContainer): Promise<void> => {
 
   // Register application controllers here
   // Controller have to extend BaseController class
-  // app.registerController(SomeController)
+  app.registerController(ApiController)
 
   // Start application
   await app.listen()

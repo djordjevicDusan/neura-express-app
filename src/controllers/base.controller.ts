@@ -6,7 +6,7 @@ import {INeuraContainer} from "../utils/container.util"
 export abstract class NeuraBaseController {
   protected logger: INeuraLogger
 
-  constructor(container: INeuraContainer) {
+  constructor(protected readonly container: INeuraContainer) {
     const logger = container.get<INeuraLogger>("logger")
     if (!logger) {
       throw new NeuraAppError("app-logger-missing", "Application logger not defined!", false)

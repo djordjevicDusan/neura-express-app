@@ -1,6 +1,6 @@
 {
   "name": "neura-express-app",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "URL shortening service using Node and Express",
   "keywords": [
     "express-starter",
