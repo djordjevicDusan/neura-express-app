@@ -1,6 +1,6 @@
 {
   "name": "neura-express-app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "URL shortening service using Node and Express",
   "keywords": [
     "express-starter",
@@ -18,6 +18,10 @@
   "files": [
     "lib/**/*"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/djordjevicDusan/neura-express-app.git"
+  },
   "scripts": {
     "build": "tsc --pretty",
     "clean": "rimraf lib",

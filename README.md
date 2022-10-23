@@ -14,8 +14,22 @@ Basic Express application starter with some common utilities.
 ### Example
 
 ```
+import dotenv from "dotenv"
+
 // Load env variables
 dotenv.config()
+
+// Import everything we need from NeuraApp module
+import {
+  NeuraApp,
+  getAppConfig,
+  NeuraContainer,
+  INeuraContainer,
+  BunyanLogger,
+  getLoggerConfig,
+  NeuraErrorHandler,
+  NeuraAppError,
+} from "neura-express-app"
 
 // import modules
 
@@ -31,7 +45,7 @@ container.set("logger", logger)
 container.set("error_handler", errorHandler)
 
 // Bootstrapping application
-const bootstrap = async (container: IContainer): Promise<void> => {
+const bootstrap = async (container: INeuraContainer): Promise<void> => {
   // Instantiate our application
   const app = new NeuraApp(getAppConfig(), container)
 
@@ -54,7 +68,7 @@ bootstrap(NeuraContainer.instance())
     logger.info("[Application]: Started")
   })
   .catch(err => {
-    errorHandler.handleError(new AppError("bootstrapping-error", err?.message, false, err))
+    errorHandler.handleError(new NeuraAppError("bootstrapping-error", err?.message, false, err))
   })
 export default bootstrap
 ```
