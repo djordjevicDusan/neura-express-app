@@ -1,26 +1,26 @@
-import {ILogger} from "../services/logger.service"
+import {INeuraLogger} from "./logger.util"
 
-export interface IContainer {
+export interface INeuraContainer {
   set(serviceName: string, service: any): void
   get<T>(serviceName: string): T | undefined
 }
 
-export class Container implements IContainer {
-  protected static _instance: Container
+export class NeuraContainer implements INeuraContainer {
+  protected static _instance: NeuraContainer
 
-  protected logger?: ILogger
+  protected logger?: INeuraLogger
   protected services = new Map<string, any>()
 
   private constructor() {
     //
   }
 
-  public static instance(): IContainer {
-    if (Container._instance) {
-      return Container._instance
+  public static instance(): INeuraContainer {
+    if (NeuraContainer._instance) {
+      return NeuraContainer._instance
     }
-    Container._instance = new Container()
-    return Container._instance
+    NeuraContainer._instance = new NeuraContainer()
+    return NeuraContainer._instance
   }
 
   public set(serviceName: string, service: any): void {

@@ -1,14 +1,14 @@
 import request from "supertest"
 
-import {App} from "../../src/app"
-import {BunyanLogger} from "../../src/services/logger.service"
-import {Container} from "../../src/utils/container.util"
+import {NeuraApp} from "../../src/app"
+import {BunyanLogger} from "../../src/utils/logger.util"
+import {NeuraContainer} from "../../src/utils/container.util"
 
 describe("Application (e2e)", () => {
-  let app: App
+  let app: NeuraApp
 
   beforeEach(async () => {
-    const container = Container.instance()
+    const container = NeuraContainer.instance()
     container.set(
       "logger",
       new BunyanLogger({
@@ -19,12 +19,12 @@ describe("Application (e2e)", () => {
       }),
     )
 
-    app = new App(
+    app = new NeuraApp(
       {
         appName: "test",
         port: 12345,
       },
-      Container.instance(),
+      NeuraContainer.instance(),
     )
     await app.listen()
   })

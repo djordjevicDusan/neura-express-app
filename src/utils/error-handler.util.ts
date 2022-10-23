@@ -1,20 +1,20 @@
 import util from "util"
 
-import {AppError} from "../errors/app.error"
-import {ILogger} from "./logger.service"
+import {NeuraAppError} from "../errors/app.error"
+import {INeuraLogger} from "./logger.util"
 
 /**
  * Basic interface for Application error handling
  */
-export interface IErrorHandler {
+export interface INeuraErrorHandler {
   onClose: (cb: () => Promise<void>) => void
   handleError: (error: unknown) => void
 }
 
-export class ErrorHandler implements IErrorHandler {
+export class NeuraErrorHandler implements INeuraErrorHandler {
   protected onCloseCb?: () => Promise<void>
 
-  constructor(protected readonly logger: ILogger) {
+  constructor(protected readonly logger: INeuraLogger) {
     this.listenNativeEvents()
   }
 
@@ -66,19 +66,19 @@ export class ErrorHandler implements IErrorHandler {
     }
   }
 
-  protected normalizeError(errorToHandle: unknown): AppError {
-    if (errorToHandle instanceof AppError) {
+  protected normalizeError(errorToHandle: unknown): NeuraAppError {
+    if (errorToHandle instanceof NeuraAppError) {
       return errorToHandle
     }
 
     if (errorToHandle instanceof Error) {
-      const appError = new AppError(errorToHandle.name, errorToHandle.message, false, errorToHandle?.stack)
+      const appError = new NeuraAppError(errorToHandle.name, errorToHandle.message, false, errorToHandle?.stack)
       appError.stack = errorToHandle.stack
       return appError
     }
 
     const inputType = typeof errorToHandle
-    return new AppError(
+    return new NeuraAppError(
       "unknown-error",
       `Error handler receives an error of type - ${inputType}, value ${util.inspect(errorToHandle)}`,
     )

@@ -14,12 +14,17 @@ Basic Express application starter with some common utilities.
 ### Example
 
 ```
+// Load env variables
+dotenv.config()
+
+// import modules
+
 // Get singleton instance of Container
-const container = Container.instance()
+const container = NeuraContainer.instance()
 
 // Instantiate logger and error handler
 const logger = new BunyanLogger(getLoggerConfig())
-const errorHandler = new ErrorHandler(logger)
+const errorHandler = new NeuraErrorHandler(logger)
 
 // Register logger and error handler in our container
 container.set("logger", logger)
@@ -28,7 +33,7 @@ container.set("error_handler", errorHandler)
 // Bootstrapping application
 const bootstrap = async (container: IContainer): Promise<void> => {
   // Instantiate our application
-  const app = new App(getAppConfig(), container)
+  const app = new NeuraApp(getAppConfig(), container)
 
   // Set callback upon error handler to gracefully close Express application either on
   // process signals or untrusted errors
@@ -44,7 +49,7 @@ const bootstrap = async (container: IContainer): Promise<void> => {
   await app.listen()
 }
 
-bootstrap(Container.instance())
+bootstrap(NeuraContainer.instance())
   .then(() => {
     logger.info("[Application]: Started")
   })

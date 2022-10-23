@@ -4,31 +4,31 @@ import helmet from "helmet"
 import bodyParser from "body-parser"
 import express, {Request, Response, NextFunction} from "express"
 import {createHttpTerminator, HttpTerminator} from "http-terminator"
-import {IAppConfig} from "./config/app.config"
-import {AppError} from "./errors/app.error"
-import {APIError, NotFoundError, ValidationRequestError} from "./errors/api.error"
-import {ILogger} from "./services/logger.service"
-import {IContainer} from "./utils/container.util"
-import {BaseController} from "./controllers/base.controller"
+import {INeuraAppConfig} from "./config/app.config"
+import {NeuraAppError} from "./errors/app.error"
+import {NeuraAPIError, NotFoundError, ValidationRequestError} from "./errors/api.error"
+import {INeuraLogger} from "./utils/logger.util"
+import {INeuraContainer} from "./utils/container.util"
+import {NeuraBaseController} from "./controllers/base.controller"
 
 export type ControllerConstructor<T> = {new (...args: any[]): T}
 
-export class App {
+export class NeuraApp {
   protected app: express.Application
   protected httpServer: http.Server
   protected httpTerminator: HttpTerminator
   protected started = false
-  protected logger: ILogger
-  protected controllers: BaseController[]
+  protected logger: INeuraLogger
+  protected controllers: NeuraBaseController[]
 
-  constructor(protected readonly config: IAppConfig, protected readonly container: IContainer) {
+  constructor(protected readonly config: INeuraAppConfig, protected readonly container: INeuraContainer) {
     this.app = express()
     this.httpServer = new http.Server(this.app)
     this.controllers = []
 
-    const logger = container.get<ILogger>("logger")
+    const logger = container.get<INeuraLogger>("logger")
     if (!logger) {
-      throw new AppError("logger-not-defined", "Can't find logger in container!", false)
+      throw new NeuraAppError("logger-not-defined", "Can't find logger in container!", false)
     }
     this.logger = logger
 
@@ -41,14 +41,14 @@ export class App {
     return this.httpServer
   }
 
-  public registerController<T extends BaseController>(controller: ControllerConstructor<T>): void {
+  public registerController<T extends NeuraBaseController>(controller: ControllerConstructor<T>): void {
     this.controllers.push(new controller(this.container))
   }
 
   public listen(): Promise<void> {
     // Make sure application was not already started
     if (this.started) {
-      throw new AppError("app-started-multiple-times", "Application was already started", false)
+      throw new NeuraAppError("app-started-multiple-times", "Application was already started", false)
     }
 
     // Add cors middleware & headers
@@ -62,7 +62,7 @@ export class App {
     this.app.use(bodyParser.json())
     this.app.use(bodyParser.urlencoded({extended: false}))
 
-    // Register routes
+    // Register controller routes
     for (const controller of this.controllers) {
       this.app.use(controller.getRoutes())
     }
@@ -86,7 +86,7 @@ export class App {
       }
 
       // Handle other API errors
-      if (error instanceof APIError) {
+      if (error instanceof NeuraAPIError) {
         return res.status(error.status).send({
           code: error.status,
           error: error.message,

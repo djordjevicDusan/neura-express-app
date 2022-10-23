@@ -1,12 +1,17 @@
 import {IRouter} from "express"
-import {ILogger} from "../services/logger.service"
-import {IContainer} from "../utils/container.util"
+import {NeuraAppError} from "../errors/app.error"
+import {INeuraLogger} from "../utils/logger.util"
+import {INeuraContainer} from "../utils/container.util"
 
-export abstract class BaseController {
-  protected logger: ILogger
+export abstract class NeuraBaseController {
+  protected logger: INeuraLogger
 
-  constructor(container: IContainer) {
-    this.logger = container.getLogger()
+  constructor(container: INeuraContainer) {
+    const logger = container.get<INeuraLogger>("logger")
+    if (!logger) {
+      throw new NeuraAppError("app-logger-missing", "Application logger not defined!", false)
+    }
+    this.logger = logger
   }
 
   public abstract getRoutes(): IRouter

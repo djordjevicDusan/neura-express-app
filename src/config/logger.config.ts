@@ -1,11 +1,11 @@
-export interface ILoggerConfig {
+export interface INeuraLoggerConfig {
   level: string
   enabled: boolean
   prettyPrint: boolean
   appName: string
 }
 
-export const getLoggerConfig = (): ILoggerConfig => ({
+export const getLoggerConfig = (): INeuraLoggerConfig => ({
   enabled: process.env.LOG_ENABLED ? process.env.LOG_ENABLED === "true" : true,
   level: process.env.LOG_LEVEL ?? "info",
   appName: process.env.APP_NAME ?? "url-shortener",

@@ -1,12 +1,12 @@
 import Bunyan from "bunyan"
 import BunyanFormat from "bunyan-format"
 
-import {ILoggerConfig} from "../config/logger.config"
+import {INeuraLoggerConfig} from "../config/logger.config"
 
 /**
  * Basic interface for loggers
  */
-export interface ILogger {
+export interface INeuraLogger {
   debug: (msg: string, ...args: unknown[]) => void
   info: (msg: string, ...args: unknown[]) => void
   warn: (msg: string, ...args: unknown[]) => void
@@ -16,11 +16,11 @@ export interface ILogger {
 /**
  * Wrapper class for Bunyan logger.
  */
-export class BunyanLogger implements ILogger {
+export class BunyanLogger implements INeuraLogger {
   protected static instance?: BunyanLogger
   protected underlyingLogger?: Bunyan
 
-  constructor(protected config: ILoggerConfig) {
+  constructor(protected config: INeuraLoggerConfig) {
     if (!config.enabled) {
       return
     }

@@ -1,37 +1,54 @@
-import * as dotenv from "dotenv"
+import {NeuraApp} from "./app"
+import {getAppConfig, INeuraAppConfig} from "./config/app.config"
+import {getLoggerConfig, INeuraLoggerConfig} from "./config/logger.config"
+import {NeuraBaseController} from "./controllers/base.controller"
+import {
+  AccessDeniedError,
+  NeuraAPIError,
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+  InternalServerError,
+  MethodNotAllowedError,
+  NotFoundError,
+  TooManyRequestsError,
+  UnauthorizedError,
+  UnProcessableEntityError,
+  UnSupportedMediaTypeError,
+  ValidationRequestError,
+} from "./errors/api.error"
+import {NeuraAppError} from "./errors/app.error"
+import {NeuraErrorHandler, INeuraErrorHandler} from "./utils/error-handler.util"
+import {BunyanLogger, INeuraLogger} from "./utils/logger.util"
+import {NeuraContainer, INeuraContainer} from "./utils/container.util"
 
-dotenv.config()
-
-import {App} from "./app"
-import {getAppConfig} from "./config/app.config"
-import {getLoggerConfig} from "./config/logger.config"
-import {AppError} from "./errors/app.error"
-import {ErrorHandler} from "./services/error-handler.service"
-import {BunyanLogger} from "./services/logger.service"
-import {Container, IContainer} from "./utils/container.util"
-
-const container = Container.instance()
-const logger = new BunyanLogger(getLoggerConfig())
-const errorHandler = new ErrorHandler(logger)
-
-container.set("logger", logger)
-container.set("error_handler", errorHandler)
-
-const bootstrap = async (container: IContainer): Promise<void> => {
-  const app = new App(getAppConfig(), container)
-
-  errorHandler.onClose(async () => {
-    await app.close()
-  })
-
-  await app.listen()
+export {
+  NeuraApp,
+  NeuraContainer,
+  NeuraErrorHandler,
+  NeuraAppError,
+  INeuraContainer,
+  INeuraErrorHandler,
+  BunyanLogger,
+  INeuraLogger as INeuraLogger,
+  NeuraAPIError as APIError,
+  NotFoundError,
+  BadRequestError,
+  AccessDeniedError,
+  UnauthorizedError,
+  ForbiddenError,
+  MethodNotAllowedError,
+  ConflictError,
+  UnSupportedMediaTypeError,
+  UnProcessableEntityError,
+  TooManyRequestsError,
+  InternalServerError,
+  ValidationRequestError,
+  NeuraBaseController,
+  INeuraAppConfig,
+  getAppConfig,
+  INeuraLoggerConfig,
+  getLoggerConfig,
 }
 
-bootstrap(Container.instance())
-  .then(() => {
-    logger.info("[Application]: Started")
-  })
-  .catch(err => {
-    errorHandler.handleError(new AppError("bootstrapping-error", err?.message, false, err))
-  })
-export default bootstrap
+export default NeuraApp
