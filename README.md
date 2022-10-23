@@ -20,19 +20,24 @@ import {NeuraBaseController} from "neura-express-app"
 import express, {Request, Response} from "express"
 
 export class ApiController extends NeuraBaseController {
-  getRoutes() {
-    const router = express.Router()
-    const someValue = this.container.get<string>("some_value");
+  public getRouterPrefix(): string | undefined {
+    return "/api"
+  }
 
-    router.get("/", (_req: Request, res: Response) => {
-      this.logger.info(`Some value: ${someValue}`)
-      res.send("Hello world")
-    })
+  public getRouter(): express.Router {
+    const router = express.Router()
+
+    router.get("/", [this.index.bind(this)])
 
     return router
   }
-}
 
+  protected index(req: Request, res: Response) {
+    const someValue = this.container.get<string>("some_value")
+    this.logger.info(`Some value: ${someValue}`)
+    res.send("Hello world")
+  }
+}
 ```
 
 index.ts
@@ -44,6 +49,9 @@ import dotenv from "dotenv"
 dotenv.config()
 
 // Import everything we need from NeuraApp module
+import cors from "cors"
+import helmet from "helmet"
+import bodyParser from "body-parser"
 import {
   NeuraApp,
   getAppConfig,
@@ -54,7 +62,7 @@ import {
   NeuraErrorHandler,
   NeuraAppError,
 } from "neura-express-app"
-import {ApiController} from "./api.controller"
+import {ApiController} from "./controllers/api.controller"
 
 // import modules
 
@@ -81,9 +89,16 @@ const bootstrap = async (container: INeuraContainer): Promise<void> => {
     await app.close()
   })
 
+  // Register global middlewares
+  app.addMiddleware(cors())
+  app.addMiddleware(helmet())
+
+  app.addMiddleware(bodyParser.json())
+  app.addMiddleware(bodyParser.urlencoded({extended: false}))
+
   // Register application controllers here
-  // Controller have to extend BaseController class
-  app.registerController(ApiController)
+  // Controller have to extend NeuraBaseController class
+  app.addController(new ApiController(container))
 
   // Start application
   await app.listen()

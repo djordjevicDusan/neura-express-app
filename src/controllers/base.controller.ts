@@ -14,5 +14,9 @@ export abstract class NeuraBaseController {
     this.logger = logger
   }
 
-  public abstract getRoutes(): IRouter
+  public getRouterPrefix(): string | undefined {
+    return undefined
+  }
+
+  public abstract getRouter(): IRouter
 }

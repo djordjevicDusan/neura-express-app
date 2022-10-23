@@ -1,8 +1,5 @@
 import http from "http"
-import cors from "cors"
-import helmet from "helmet"
-import bodyParser from "body-parser"
-import express, {Request, Response, NextFunction} from "express"
+import express, {Request, Response, NextFunction, RequestHandler} from "express"
 import {createHttpTerminator, HttpTerminator} from "http-terminator"
 import {INeuraAppConfig} from "./config/app.config"
 import {NeuraAppError} from "./errors/app.error"
@@ -11,20 +8,16 @@ import {INeuraLogger} from "./utils/logger.util"
 import {INeuraContainer} from "./utils/container.util"
 import {NeuraBaseController} from "./controllers/base.controller"
 
-export type ControllerConstructor<T> = {new (...args: any[]): T}
-
 export class NeuraApp {
   protected app: express.Application
   protected httpServer: http.Server
   protected httpTerminator: HttpTerminator
   protected started = false
   protected logger: INeuraLogger
-  protected controllers: NeuraBaseController[]
 
   constructor(protected readonly config: INeuraAppConfig, protected readonly container: INeuraContainer) {
     this.app = express()
     this.httpServer = new http.Server(this.app)
-    this.controllers = []
 
     const logger = container.get<INeuraLogger>("logger")
     if (!logger) {
@@ -35,36 +28,47 @@ export class NeuraApp {
     this.httpTerminator = createHttpTerminator({
       server: this.httpServer,
     })
+
+    if (this.config.logHttpRequests) {
+      this.app.use((req: Request, _res: Response, next: NextFunction) => {
+        this.logger.info(`[App]: New request`, {
+          method: req.method,
+          url: req.url,
+          body: req.body,
+          query: req.query,
+        })
+        next()
+      })
+    }
   }
 
   public get HttpServer(): http.Server {
     return this.httpServer
   }
 
-  public registerController<T extends NeuraBaseController>(controller: ControllerConstructor<T>): void {
-    this.controllers.push(new controller(this.container))
+  public addController<T extends NeuraBaseController>(instance: T): void {
+    const routePrefix = instance.getRouterPrefix()
+    const router = instance.getRouter()
+    const constructorName = (instance as any)?.constructor?.name
+
+    if (routePrefix) {
+      this.app.use(routePrefix, router)
+      this.logger.debug(`[App]: Controller added: ${constructorName} on base url: ${routePrefix}`)
+      return
+    }
+    this.logger.debug(`[App]: Controller added: ${constructorName}`)
+    this.app.use(router)
+  }
+
+  public addMiddleware(handler: RequestHandler) {
+    this.logger.debug(`[App]: Middleware added: ${handler.name}`)
+    this.app.use(handler)
   }
 
   public listen(): Promise<void> {
     // Make sure application was not already started
     if (this.started) {
       throw new NeuraAppError("app-started-multiple-times", "Application was already started", false)
-    }
-
-    // Add cors middleware & headers
-    this.app.use(cors())
-    // Add all bunch of security headers
-    this.app.use(helmet())
-
-    // @TODO: Add rate limiter middleware here
-
-    // Parse body
-    this.app.use(bodyParser.json())
-    this.app.use(bodyParser.urlencoded({extended: false}))
-
-    // Register controller routes
-    for (const controller of this.controllers) {
-      this.app.use(controller.getRoutes())
     }
 
     // If route was not found, handle it
@@ -105,10 +109,10 @@ export class NeuraApp {
         this.started = true
 
         this.httpServer.on("close", () => {
-          this.logger.info(`⚡️[HttpServer]: Closed`)
+          this.logger.info(`[HttpServer]: Closed`)
         })
 
-        this.logger.info(`⚡️[HttpServer]: Listening at http://localhost:${this.config.port}`)
+        this.logger.info(`[HttpServer]: Listening at http://localhost:${this.config.port}`)
         res()
       })
     })
