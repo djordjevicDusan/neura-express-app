@@ -1,5 +1,5 @@
 {
-  "name": "neura-app",
+  "name": "neura-express-app",
   "version": "1.0.0",
   "description": "URL shortening service using Node and Express",
   "keywords": [
