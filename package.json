@@ -1,6 +1,6 @@
 {
   "name": "neura-express-app",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "URL shortening service using Node and Express",
   "keywords": [
     "express-starter",
@@ -37,10 +37,8 @@
   "dependencies": {
     "bunyan": "^1.8.15",
     "bunyan-format": "^0.2.1",
-    "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.0.2",
     "express": "^4.18.1",
     "helmet": "^6.0.0",
     "http-terminator": "^3.2.0"
