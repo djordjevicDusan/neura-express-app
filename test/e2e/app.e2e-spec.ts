@@ -23,6 +23,7 @@ describe("Application (e2e)", () => {
       {
         appName: "test",
         port: 12345,
+        logHttpRequests: false,
       },
       NeuraContainer.instance(),
     )
