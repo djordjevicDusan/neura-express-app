@@ -1,7 +1,7 @@
 {
   "name": "neura-express-app",
   "version": "1.1.2",
-  "description": "URL shortening service using Node and Express",
+  "description": "Basic express application starter with some common utilities.",
   "keywords": [
     "express-starter",
     "express-typescript-starter",
