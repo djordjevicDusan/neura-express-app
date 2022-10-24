@@ -1,7 +1,7 @@
 import {INeuraLogger} from "./logger.util"
 
 export interface INeuraContainer {
-  set(serviceName: string, service: any): void
+  set<T>(serviceName: string, service: any): T
   get<T>(serviceName: string): T | undefined
 }
 
@@ -23,7 +23,7 @@ export class NeuraContainer implements INeuraContainer {
     return NeuraContainer._instance
   }
 
-  public set(serviceName: string, service: any): void {
+  public set<T>(serviceName: string, service: T): T {
     if (!this.logger) {
       this.logger = this.get("logger")
     }
@@ -33,6 +33,7 @@ export class NeuraContainer implements INeuraContainer {
     }
     this.services.set(serviceName, service)
     this.logger?.info(`Container: New property registered: '${serviceName}' of type ${typeof service}`)
+    return service
   }
 
   public get<T>(serviceName: string): T | undefined {

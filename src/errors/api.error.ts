@@ -1,4 +1,4 @@
-import {ValidationError} from "class-validator"
+import Joi from "joi"
 
 export class NeuraAPIError extends Error {
   constructor(public status: number, public message: string) {
@@ -75,10 +75,15 @@ export class InternalServerError extends NeuraAPIError {
 export class ValidationRequestError extends NeuraAPIError {
   public data: {[key: string]: string[]} = {}
 
-  constructor(message = "Validation error", errors: ValidationError[]) {
+  constructor(message = "Validation error", errors: Joi.ValidationError) {
     super(400, message)
-    errors.forEach(error => {
-      this.data[error.property] = error.constraints !== undefined ? Object.values(error.constraints) : []
+    errors.details.forEach(error => {
+      const key = error.path.join(".")
+      if (!Object.keys(this.data).includes(key)) {
+        this.data[key] = []
+      }
+
+      this.data[key].push(error.message)
     })
   }
 }

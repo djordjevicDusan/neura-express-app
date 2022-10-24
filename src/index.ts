@@ -21,6 +21,7 @@ import {NeuraAppError} from "./errors/app.error"
 import {NeuraErrorHandler, INeuraErrorHandler} from "./utils/error-handler.util"
 import {BunyanLogger, INeuraLogger} from "./utils/logger.util"
 import {NeuraContainer, INeuraContainer} from "./utils/container.util"
+import {validateMiddleware} from "./middleware/validate.middleware"
 
 export {
   NeuraApp,
@@ -49,6 +50,7 @@ export {
   getAppConfig,
   INeuraLoggerConfig,
   getLoggerConfig,
+  validateMiddleware,
 }
 
 export default NeuraApp
