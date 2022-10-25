@@ -1,7 +1,7 @@
 import {NeuraApp} from "./app"
 import {getAppConfig, INeuraAppConfig} from "./config/app.config"
 import {getLoggerConfig, INeuraLoggerConfig} from "./config/logger.config"
-import {NeuraBaseController} from "./controllers/base.controller"
+import {NeuraController} from "./controllers/base.controller"
 import {
   AccessDeniedError,
   NeuraAPIError,
@@ -21,7 +21,11 @@ import {NeuraAppError} from "./errors/app.error"
 import {NeuraErrorHandler, INeuraErrorHandler} from "./utils/error-handler.util"
 import {BunyanLogger, INeuraLogger} from "./utils/logger.util"
 import {NeuraContainer, INeuraContainer} from "./utils/container.util"
-import {validateMiddleware} from "./middleware/validate.middleware"
+import {
+  validateBodyMiddleware,
+  validateParamsMiddleware,
+  validateQueryMiddleware,
+} from "./middleware/validate.middleware"
 
 export {
   NeuraApp,
@@ -45,12 +49,14 @@ export {
   TooManyRequestsError,
   InternalServerError,
   ValidationRequestError,
-  NeuraBaseController,
+  NeuraController,
   INeuraAppConfig,
   getAppConfig,
   INeuraLoggerConfig,
   getLoggerConfig,
-  validateMiddleware,
+  validateBodyMiddleware,
+  validateParamsMiddleware,
+  validateQueryMiddleware,
 }
 
 export default NeuraApp

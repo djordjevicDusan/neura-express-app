@@ -16,10 +16,10 @@ Basic Express application starter with some common utilities.
 api.controller.ts
 
 ```
-import {NeuraBaseController} from "neura-express-app"
+import {NeuraController} from "neura-express-app"
 import express, {Request, Response} from "express"
 
-export class ApiController extends NeuraBaseController {
+export class ApiController extends NeuraController {
   public getRouterPrefix(): string | undefined {
     return "/api"
   }
@@ -97,7 +97,7 @@ const bootstrap = async (container: INeuraContainer): Promise<void> => {
   app.addMiddleware(bodyParser.urlencoded({extended: false}))
 
   // Register application controllers here
-  // Controller have to extend NeuraBaseController class
+  // Controller have to extend NeuraController class
   app.addController(new ApiController(container))
 
   // Start application

@@ -3,7 +3,7 @@ import {NeuraAppError} from "../errors/app.error"
 import {INeuraLogger} from "../utils/logger.util"
 import {INeuraContainer} from "../utils/container.util"
 
-export abstract class NeuraBaseController {
+export abstract class NeuraController {
   protected logger: INeuraLogger
 
   constructor(protected readonly container: INeuraContainer) {

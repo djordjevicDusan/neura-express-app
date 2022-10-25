@@ -6,7 +6,7 @@ import {NeuraAppError} from "./errors/app.error"
 import {NeuraAPIError, NotFoundError, ValidationRequestError} from "./errors/api.error"
 import {INeuraLogger} from "./utils/logger.util"
 import {INeuraContainer} from "./utils/container.util"
-import {NeuraBaseController} from "./controllers/base.controller"
+import {NeuraController} from "./controllers/base.controller"
 
 export class NeuraApp {
   protected app: express.Application
@@ -46,7 +46,7 @@ export class NeuraApp {
     return this.httpServer
   }
 
-  public addController<T extends NeuraBaseController>(instance: T): void {
+  public addController<T extends NeuraController>(instance: T): void {
     const routePrefix = instance.getRouterPrefix()
     const router = instance.getRouter()
     const constructorName = (instance as any)?.constructor?.name
