@@ -1,6 +1,6 @@
 {
   "name": "neura-express-app",
-  "version": "1.1.5",
+  "version": "1.2.0",
   "description": "Basic express application starter with some common utilities.",
   "keywords": [
     "express-starter",
