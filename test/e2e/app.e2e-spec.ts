@@ -1,30 +1,58 @@
 import request from "supertest"
-import Joi from "joi"
-import express, {Request, Response} from "express"
+import {IsNotEmpty, IsDefined, IsString, IsNumber} from "class-validator"
 import bodyParser from "express"
 
 import {NeuraApp} from "../../src/app"
 import {BunyanLogger} from "../../src/utils/logger.util"
 import {NeuraContainer} from "../../src/utils/container.util"
-import {NeuraController} from "../../src/controllers/base.controller"
-import {validateBodyMiddleware} from "../../src/middleware/validate.middleware"
-import {IRouter} from "express"
+import {NeuraController} from "../../src/controllers/neura.controller"
+
+class TestDTO {
+  @IsDefined()
+  @IsNotEmpty()
+  @IsString()
+  username!: string
+
+  @IsDefined()
+  @IsNotEmpty()
+  @IsString()
+  password!: string
+
+  @IsDefined()
+  @IsNotEmpty()
+  @IsNumber()
+  someNumber!: number
+}
+
+class TestDTOQuery {
+  @IsDefined()
+  @IsNotEmpty()
+  @IsString()
+  username!: string
+
+  @IsDefined()
+  @IsNotEmpty()
+  @IsString()
+  password!: string
+}
 
 class TestController extends NeuraController {
-  public getRouter(): IRouter {
-    const router = express.Router()
-
-    const testBodySchema = Joi.object({
-      username: Joi.string().required(),
-      password: Joi.string().required(),
-      someNumber: Joi.number().required(),
-    })
-
-    router.post("/testBody", validateBodyMiddleware(testBodySchema), (_req: Request, res: Response) => {
-      res.send("ok")
-    })
-
-    return router
+  public registerRoutes(): void {
+    this.router.post(
+      "/testBody",
+      async (_body: TestDTO) => {
+        return "Ok"
+      },
+      TestDTO,
+    )
+    this.router.get(
+      "/testquery",
+      async (body: undefined, query: TestDTOQuery) => {
+        return "Ok"
+      },
+      undefined,
+      TestDTOQuery,
+    )
   }
 }
 
@@ -80,9 +108,13 @@ describe("Application (e2e)", () => {
       expect(response.statusCode).toBe(400)
       expect(response.body).toMatchObject({
         code: 400,
-        error: "Body validation error",
+        error: "Invalid input",
         data: {
-          username: ['"username" is required'],
+          username: [
+            "username should not be null or undefined",
+            "username must be a string",
+            "username should not be empty",
+          ],
         },
       })
     })
@@ -92,6 +124,27 @@ describe("Application (e2e)", () => {
         password: "something",
         someNumber: 123,
       })
+      expect(response.statusCode).toBe(200)
+    })
+
+    it("Route returns validation error when query is not correct", async () => {
+      const response = await request(app.HttpServer).get("/testquery")
+      expect(response.statusCode).toBe(400)
+      expect(response.body).toMatchObject({
+        code: 400,
+        error: "Invalid input",
+        data: {
+          username: [
+            "username should not be null or undefined",
+            "username must be a string",
+            "username should not be empty",
+          ],
+        },
+      })
+    })
+    it("Route returns 200 when query data is correct", async () => {
+      const response = await request(app.HttpServer).get("/testquery?username=something&password=something")
+      console.log(response.body)
       expect(response.statusCode).toBe(200)
     })
   })

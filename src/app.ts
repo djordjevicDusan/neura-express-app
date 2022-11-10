@@ -6,7 +6,7 @@ import {NeuraAppError} from "./errors/app.error"
 import {NeuraAPIError, NotFoundError, ValidationRequestError} from "./errors/api.error"
 import {INeuraLogger} from "./utils/logger.util"
 import {INeuraContainer} from "./utils/container.util"
-import {NeuraController} from "./controllers/base.controller"
+import {NeuraController} from "./controllers/neura.controller"
 
 export class NeuraApp {
   protected app: express.Application
