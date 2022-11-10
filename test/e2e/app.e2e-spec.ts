@@ -1,6 +1,5 @@
 import request from "supertest"
 import {IsNotEmpty, IsDefined, IsString, IsNumber} from "class-validator"
-import bodyParser from "express"
 
 import {NeuraApp} from "../../src/app"
 import {BunyanLogger} from "../../src/utils/logger.util"
@@ -76,12 +75,10 @@ describe("Application (e2e)", () => {
         appName: "test",
         port: 12345,
         logHttpRequests: false,
+        bodyParserEnabled: true,
       },
       NeuraContainer.instance(),
     )
-
-    app.addMiddleware(bodyParser.json())
-    app.addMiddleware(bodyParser.urlencoded({extended: false}))
 
     app.addController(new TestController(container))
     await app.listen()
@@ -144,7 +141,6 @@ describe("Application (e2e)", () => {
     })
     it("Route returns 200 when query data is correct", async () => {
       const response = await request(app.HttpServer).get("/testquery?username=something&password=something")
-      console.log(response.body)
       expect(response.statusCode).toBe(200)
     })
   })

@@ -8,6 +8,7 @@ import {ValidationRequestError} from "../errors/api.error"
 
 export class NeuraRouter {
   public router: Router
+  public routePrefix: string | undefined
   protected logger: INeuraLogger
 
   constructor(protected readonly container: INeuraContainer) {
@@ -29,9 +30,9 @@ export class NeuraRouter {
     bodyToValidate?: ClassConstructor<T>,
     queryToValidate?: ClassConstructor<U>,
   ): void {
-    this.logger.info(`Route [GET]: ${path} registered`)
+    this.logger.info(`[Router]: New route [GET] -> ${this.getFullRoutePath(path)}`)
     this.router.get(path, async (req: Request, res: Response, next: NextFunction) => {
-      await this.validateBodyAndRespond(req, res, next, cb, bodyToValidate, queryToValidate)
+      await this.validateAndRespond(req, res, next, cb, bodyToValidate, queryToValidate)
     })
   }
 
@@ -41,9 +42,9 @@ export class NeuraRouter {
     bodyToValidate?: ClassConstructor<T>,
     queryToValidate?: ClassConstructor<U>,
   ): void {
-    this.logger.info(`Route [POST]: ${path} registered`)
+    this.logger.info(`[Router]: New route [POST] -> ${this.getFullRoutePath(path)}`)
     this.router.post(path, async (req: Request, res: Response, next: NextFunction) => {
-      await this.validateBodyAndRespond(req, res, next, cb, bodyToValidate, queryToValidate)
+      await this.validateAndRespond(req, res, next, cb, bodyToValidate, queryToValidate)
     })
   }
 
@@ -53,9 +54,9 @@ export class NeuraRouter {
     bodyToValidate?: ClassConstructor<T>,
     queryToValidate?: ClassConstructor<U>,
   ): void {
-    this.logger.info(`Route [PUT]: ${path} registered`)
+    this.logger.info(`[Router]: New route [PUT] -> ${this.getFullRoutePath(path)}`)
     this.router.put(path, async (req: Request, res: Response, next: NextFunction) => {
-      await this.validateBodyAndRespond(req, res, next, cb, bodyToValidate, queryToValidate)
+      await this.validateAndRespond(req, res, next, cb, bodyToValidate, queryToValidate)
     })
   }
 
@@ -65,13 +66,13 @@ export class NeuraRouter {
     bodyToValidate?: ClassConstructor<T>,
     queryToValidate?: ClassConstructor<U>,
   ): void {
-    this.logger.info(`Route [DELETE]: ${path} registered`)
+    this.logger.info(`[Router]: New route [DELETE] -> ${this.getFullRoutePath(path)}`)
     this.router.delete(path, async (req: Request, res: Response, next: NextFunction) => {
-      await this.validateBodyAndRespond(req, res, next, cb, bodyToValidate, queryToValidate)
+      await this.validateAndRespond(req, res, next, cb, bodyToValidate, queryToValidate)
     })
   }
 
-  protected async validateBodyAndRespond<T, U>(
+  protected async validateAndRespond<T, U>(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -79,20 +80,28 @@ export class NeuraRouter {
     bodyToValidate?: ClassConstructor<T>,
     queryToValidate?: ClassConstructor<U>,
   ): Promise<any> {
-    if (bodyToValidate) {
-      const validationErrors = await validateData(bodyToValidate, req.body)
-      if (validationErrors instanceof ValidationRequestError) {
-        return next(validationErrors)
+    try {
+      if (bodyToValidate) {
+        const validationErrors = await validateData(bodyToValidate, req.body)
+        if (validationErrors instanceof ValidationRequestError) {
+          return next(validationErrors)
+        }
       }
-    }
-    if (queryToValidate) {
-      const validationErrors = await validateData(queryToValidate, req.query)
-      if (validationErrors instanceof ValidationRequestError) {
-        return next(validationErrors)
+      if (queryToValidate) {
+        const validationErrors = await validateData(queryToValidate, req.query)
+        if (validationErrors instanceof ValidationRequestError) {
+          return next(validationErrors)
+        }
       }
+      const result = await cb(req.body as T, req.query as U)
+      return res.send(result ?? "Ok")
+    } catch (error: any) {
+      return next(error)
     }
-    const result = await cb(req.body as T, req.query as U)
-    return res.send(result ?? "Ok")
+  }
+
+  protected getFullRoutePath(path: string): string {
+    return this.routePrefix ? `${this.routePrefix}${path}` : path
   }
 }
 
@@ -118,6 +127,7 @@ export abstract class NeuraController {
 
   public getRouter(): IRouter {
     if (!this.routesRegistered) {
+      this.router.routePrefix = this.getRouterPrefix()
       this.registerRoutes()
       this.routesRegistered = true
     }

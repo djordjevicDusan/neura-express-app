@@ -7,6 +7,7 @@ import {NeuraAPIError, NotFoundError, ValidationRequestError} from "./errors/api
 import {INeuraLogger} from "./utils/logger.util"
 import {INeuraContainer} from "./utils/container.util"
 import {NeuraController} from "./controllers/neura.controller"
+import bodyParser from "express"
 
 export class NeuraApp {
   protected app: express.Application
@@ -14,6 +15,7 @@ export class NeuraApp {
   protected httpTerminator: HttpTerminator
   protected started = false
   protected logger: INeuraLogger
+  private middlewaresInitialized = false
 
   constructor(protected readonly config: INeuraAppConfig, protected readonly container: INeuraContainer) {
     this.app = express()
@@ -28,18 +30,6 @@ export class NeuraApp {
     this.httpTerminator = createHttpTerminator({
       server: this.httpServer,
     })
-
-    if (this.config.logHttpRequests) {
-      this.app.use((req: Request, _res: Response, next: NextFunction) => {
-        this.logger.info(`[App]: New request`, {
-          method: req.method,
-          url: req.url,
-          body: req.body,
-          query: req.query,
-        })
-        next()
-      })
-    }
   }
 
   public get HttpServer(): http.Server {
@@ -47,6 +37,27 @@ export class NeuraApp {
   }
 
   public addController<T extends NeuraController>(instance: T): void {
+    if (!this.middlewaresInitialized) {
+      if (this.config.bodyParserEnabled) {
+        this.addMiddleware(bodyParser.json())
+        this.addMiddleware(bodyParser.urlencoded({extended: false}))
+      }
+
+      if (this.config.logHttpRequests) {
+        this.app.use((req: Request, _res: Response, next: NextFunction) => {
+          this.logger.info(`[App]: New request`, {
+            method: req.method,
+            url: req.url,
+            body: req.body,
+            query: req.query,
+          })
+          next()
+        })
+      }
+
+      this.middlewaresInitialized = true
+    }
+
     const routePrefix = instance.getRouterPrefix()
     const router = instance.getRouter()
     const constructorName = (instance as any)?.constructor?.name
