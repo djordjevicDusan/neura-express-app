@@ -6,6 +6,12 @@ import {ClassConstructor} from "class-transformer"
 import {validateData} from "../other/helpers"
 import {ValidationRequestError} from "../errors/api.error"
 
+export interface NeuraRequest<T, U> {
+  body: T
+  query: U
+  headers: {[key: string]: string}
+}
+
 export class NeuraRouter {
   public router: Router
   public routePrefix: string | undefined
@@ -26,7 +32,7 @@ export class NeuraRouter {
 
   public get<T, U>(
     path: string,
-    cb: (body: T, query: U) => Promise<any>,
+    cb: (request: NeuraRequest<T, U>) => Promise<any>,
     bodyToValidate?: ClassConstructor<T>,
     queryToValidate?: ClassConstructor<U>,
   ): void {
@@ -38,7 +44,7 @@ export class NeuraRouter {
 
   public post<T, U>(
     path: string,
-    cb: (body: T, query: U) => Promise<any>,
+    cb: (request: NeuraRequest<T, U>) => Promise<any>,
     bodyToValidate?: ClassConstructor<T>,
     queryToValidate?: ClassConstructor<U>,
   ): void {
@@ -50,7 +56,7 @@ export class NeuraRouter {
 
   public put<T, U>(
     path: string,
-    cb: (body: T, query: U) => Promise<any>,
+    cb: (request: NeuraRequest<T, U>) => Promise<any>,
     bodyToValidate?: ClassConstructor<T>,
     queryToValidate?: ClassConstructor<U>,
   ): void {
@@ -62,7 +68,7 @@ export class NeuraRouter {
 
   public delete<T, U>(
     path: string,
-    cb: (body: T, query: U) => Promise<any>,
+    cb: (request: NeuraRequest<T, U>) => Promise<any>,
     bodyToValidate?: ClassConstructor<T>,
     queryToValidate?: ClassConstructor<U>,
   ): void {
@@ -76,7 +82,7 @@ export class NeuraRouter {
     req: Request,
     res: Response,
     next: NextFunction,
-    cb: (body: T, query: U) => Promise<any>,
+    cb: (request: NeuraRequest<T, U>) => Promise<any>,
     bodyToValidate?: ClassConstructor<T>,
     queryToValidate?: ClassConstructor<U>,
   ): Promise<any> {
@@ -93,7 +99,11 @@ export class NeuraRouter {
           return next(validationErrors)
         }
       }
-      const result = await cb(req.body as T, req.query as U)
+      const result = await cb({
+        body: req.body as T,
+        query: req.query as U,
+        headers: req.headers as {[key: string]: string},
+      })
       return res.send(result ?? "Ok")
     } catch (error: any) {
       return next(error)

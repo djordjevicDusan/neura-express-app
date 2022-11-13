@@ -1,7 +1,7 @@
 import {NeuraApp} from "./app"
 import {getAppConfig, INeuraAppConfig} from "./config/app.config"
 import {getLoggerConfig, INeuraLoggerConfig} from "./config/logger.config"
-import {NeuraController, NeuraRouter} from "./controllers/neura.controller"
+import {NeuraController, NeuraRequest, NeuraRouter} from "./controllers/neura.controller"
 import {
   AccessDeniedError,
   NeuraAPIError,
@@ -50,6 +50,7 @@ export {
   getAppConfig,
   INeuraLoggerConfig,
   getLoggerConfig,
+  NeuraRequest,
 }
 
 export default NeuraApp

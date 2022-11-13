@@ -81,4 +81,11 @@ export class ValidationRequestError extends NeuraAPIError {
       this.data[error.property] = error.constraints !== undefined ? Object.values(error.constraints) : []
     })
   }
+
+  public addError(key: string, msg: string) {
+    if (!Object.keys(this.data).includes(key)) {
+      this.data[key] = []
+    }
+    this.data[key].push(msg)
+  }
 }

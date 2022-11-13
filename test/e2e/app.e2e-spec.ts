@@ -4,7 +4,7 @@ import {IsNotEmpty, IsDefined, IsString, IsNumber} from "class-validator"
 import {NeuraApp} from "../../src/app"
 import {BunyanLogger} from "../../src/utils/logger.util"
 import {NeuraContainer} from "../../src/utils/container.util"
-import {NeuraController} from "../../src/controllers/neura.controller"
+import {NeuraController, NeuraRequest} from "../../src/controllers/neura.controller"
 
 class TestDTO {
   @IsDefined()
@@ -39,14 +39,14 @@ class TestController extends NeuraController {
   public registerRoutes(): void {
     this.router.post(
       "/testBody",
-      async (_body: TestDTO) => {
+      async (request: NeuraRequest<TestDTO, undefined>) => {
         return "Ok"
       },
       TestDTO,
     )
     this.router.get(
       "/testquery",
-      async (body: undefined, query: TestDTOQuery) => {
+      async (request: NeuraRequest<undefined, TestDTOQuery>) => {
         return "Ok"
       },
       undefined,
