@@ -6,9 +6,13 @@ import {ClassConstructor} from "class-transformer"
 import {validateData} from "../other/helpers"
 import {ValidationRequestError} from "../errors/api.error"
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface NeuraSession {}
+
 export interface NeuraRequest<T, U> {
   body: T
   query: U
+  session: NeuraSession
   headers: {[key: string]: string}
 }
 
@@ -103,6 +107,7 @@ export class NeuraRouter {
         body: req.body as T,
         query: req.query as U,
         headers: req.headers as {[key: string]: string},
+        session: {},
       })
       return res.send(result ?? "Ok")
     } catch (error: any) {
