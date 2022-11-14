@@ -107,7 +107,7 @@ export class NeuraRouter {
         body: req.body as T,
         query: req.query as U,
         headers: req.headers as {[key: string]: string},
-        session: (req as any).session,
+        session: (req as any).session ?? {},
       })
       return res.send(result ?? "Ok")
     } catch (error: any) {
