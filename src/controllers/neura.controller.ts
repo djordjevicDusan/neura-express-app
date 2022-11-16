@@ -14,6 +14,9 @@ export interface NeuraRequest<T, U> {
   query: U
   session: NeuraSession
   headers: {[key: string]: string}
+  expressRequest: Request
+  expressResponse: Response
+  cookies: {[key: string]: string}
 }
 
 export class NeuraRouter {
@@ -108,6 +111,9 @@ export class NeuraRouter {
         query: req.query as U,
         headers: req.headers as {[key: string]: string},
         session: (req as any).session ?? {},
+        expressRequest: req,
+        expressResponse: res,
+        cookies: req.cookies as {[key: string]: string},
       })
       return res.send(result ?? "Ok")
     } catch (error: any) {
