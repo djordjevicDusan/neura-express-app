@@ -8,6 +8,7 @@ import {INeuraLogger} from "./utils/logger.util"
 import {INeuraContainer} from "./utils/container.util"
 import {NeuraController} from "./controllers/neura.controller"
 import bodyParser from "express"
+import cookieParser from "cookie-parser"
 
 export class NeuraApp {
   protected app: express.Application
@@ -39,6 +40,7 @@ export class NeuraApp {
   public addController<T extends NeuraController>(instance: T): void {
     if (!this.middlewaresInitialized) {
       if (this.config.bodyParserEnabled) {
+        this.addMiddleware(cookieParser())
         this.addMiddleware(bodyParser.json())
         this.addMiddleware(bodyParser.urlencoded({extended: false}))
       }
