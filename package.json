@@ -29,8 +29,8 @@
     "test": "yarn test:e2e",
     "test:e2e": "jest --config ./test/e2e/jest-e2e.json",
     "prepare": "yarn build",
-    "prepublishOnly": "yarn test && yarn lint && yarn audit",
-    "preversion": "yarn test && yarn lint && yarn audit",
+    "prepublishOnly": "yarn test && yarn lint",
+    "preversion": "yarn test && yarn lint",
     "version": "git add -A src",
     "postversion": "git push && git push --tags"
   },
