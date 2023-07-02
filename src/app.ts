@@ -37,6 +37,10 @@ export class NeuraApp {
     return this.httpServer
   }
 
+  public get ExpressApp(): express.Application {
+    return this.app
+  }
+
   public addController<T extends NeuraController>(instance: T): void {
     if (!this.middlewaresInitialized) {
       if (this.config.bodyParserEnabled) {
